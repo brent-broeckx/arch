@@ -1,21 +1,36 @@
 import { ContextCompiler } from '@arch/context'
-import { printContextOutput } from '../utils/output'
+import { formatContextResult } from '../formatters/context'
+import type { ContextCommandResult } from '../models/command-results'
+import type { OutputOptions } from '../models/output-mode'
+import { CliCommandError, handleCommandError, resolveOutputMode, writeFormattedOutput } from '../utils/command-output'
 
-export async function runContextCommand(query: string | undefined): Promise<void> {
+export async function executeContextCommand(
+  query: string | undefined,
+  cwd: string = process.cwd(),
+): Promise<ContextCommandResult> {
   const queryInput = query?.trim()
 
   if (!queryInput) {
-    console.error('Provide a query. Usage: `arch context <query>`.')
-    process.exitCode = 1
-    return
+    throw new CliCommandError('INVALID_INPUT', 'Provide a query. Usage: `arch context <query>`.')
   }
 
   try {
     const compiler = new ContextCompiler()
-    const bundle = await compiler.compile(process.cwd(), { query: queryInput })
-    printContextOutput(bundle)
+    return compiler.compile(cwd, { query: queryInput })
   } catch {
-    console.error('No graph data found. Run `arch build` first.')
-    process.exitCode = 1
+    throw new CliCommandError('GRAPH_NOT_FOUND', 'No graph data found. Run `arch build` first.')
+  }
+}
+
+export async function runContextCommand(
+  query: string | undefined,
+  outputOptions: OutputOptions,
+): Promise<void> {
+  try {
+    const mode = resolveOutputMode(outputOptions, true)
+    const result = await executeContextCommand(query)
+    writeFormattedOutput(formatContextResult(result, mode))
+  } catch (error) {
+    handleCommandError(error, outputOptions)
   }
 }

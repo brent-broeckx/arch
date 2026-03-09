@@ -1,35 +1,66 @@
 import { extractSnippetForNode, resolveSymbolInput } from '@arch/graph'
-import { printShowAmbiguousOutput, printShowNoMatchOutput, printShowOutput } from '../utils/output'
+import { formatShowResult } from '../formatters/show'
+import type { ShowCommandResult } from '../models/command-results'
+import type { OutputOptions } from '../models/output-mode'
+import { CliCommandError, handleCommandError, resolveOutputMode, writeFormattedOutput } from '../utils/command-output'
 
-export async function runShowCommand(symbol: string | undefined): Promise<void> {
+export async function executeShowCommand(
+  symbol: string | undefined,
+  cwd: string = process.cwd(),
+): Promise<ShowCommandResult> {
   const symbolInput = symbol?.trim()
 
   if (!symbolInput) {
-    console.error('Provide a symbol. Usage: `arch show <symbol>`.')
-    process.exitCode = 1
-    return
+    throw new CliCommandError('INVALID_INPUT', 'Provide a symbol. Usage: `arch show <symbol>`.')
   }
 
   try {
-    const resolved = await resolveSymbolInput(process.cwd(), symbolInput)
+    const resolved = await resolveSymbolInput(cwd, symbolInput)
 
     if (resolved.nodes.length === 0) {
-      printShowNoMatchOutput(symbolInput)
-      process.exitCode = 1
-      return
+      throw new CliCommandError('SYMBOL_NOT_FOUND', `No symbol found for: ${symbolInput}`)
     }
 
     if (resolved.nodes.length > 1) {
-      printShowAmbiguousOutput(symbolInput, resolved.nodes)
-      process.exitCode = 1
-      return
+      throw new CliCommandError(
+        'SYMBOL_AMBIGUOUS',
+        [
+          `Ambiguous symbol: ${symbolInput}`,
+          '',
+          'Matches:',
+          ...resolved.nodes
+            .slice()
+            .sort((left, right) => left.id.localeCompare(right.id))
+            .map((node) => `  ${node.id}`),
+        ].join('\n'),
+      )
     }
 
     const selectedNode = resolved.nodes[0]
-    const snippet = await extractSnippetForNode(process.cwd(), selectedNode)
-    printShowOutput(selectedNode, snippet)
-  } catch {
-    console.error('No graph data found. Run `arch build` first.')
-    process.exitCode = 1
+    const snippet = await extractSnippetForNode(cwd, selectedNode)
+    return {
+      input: symbolInput,
+      node: selectedNode,
+      snippet,
+    }
+  } catch (error) {
+    if (error instanceof CliCommandError) {
+      throw error
+    }
+
+    throw new CliCommandError('GRAPH_NOT_FOUND', 'No graph data found. Run `arch build` first.')
+  }
+}
+
+export async function runShowCommand(
+  symbol: string | undefined,
+  outputOptions: OutputOptions,
+): Promise<void> {
+  try {
+    const mode = resolveOutputMode(outputOptions, true)
+    const result = await executeShowCommand(symbol)
+    writeFormattedOutput(formatShowResult(result, mode))
+  } catch (error) {
+    handleCommandError(error, outputOptions)
   }
 }

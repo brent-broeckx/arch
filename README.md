@@ -46,6 +46,7 @@ Examples:
 pnpm arch build
 pnpm arch build .
 pnpm arch build packages/arch-cli
+pnpm arch build . --json
 ```
 
 Current limitations / notes:
@@ -64,6 +65,7 @@ Examples:
 pnpm arch stats
 pnpm arch stats .
 pnpm arch stats packages/arch-parser-ts
+pnpm arch stats . --json
 ```
 
 Current limitations / notes:
@@ -81,6 +83,8 @@ Examples:
 pnpm arch query TypeScriptParser
 pnpm arch query parse
 pnpm arch query buildProgram
+pnpm arch query parser --json
+pnpm arch query parser --format llm
 ```
 
 Current limitations / notes:
@@ -100,6 +104,8 @@ pnpm arch deps runBuildCommand
 pnpm arch deps TypeScriptParser
 pnpm arch deps TypeScriptParser.parseRepository
 pnpm arch deps method:packages/arch-parser-ts/src/services/type-script-parser.ts#TypeScriptParser.parseRepository
+pnpm arch deps TypeScriptParser.parseRepository --json
+pnpm arch deps TypeScriptParser.parseRepository --format llm
 ```
 
 Current limitations / notes:
@@ -119,6 +125,8 @@ Examples:
 pnpm arch show runBuildCommand
 pnpm arch show TypeScriptParser.parseRepository
 pnpm arch show function:packages/arch-cli/src/commands/build.ts#runBuildCommand
+pnpm arch show runBuildCommand --json
+pnpm arch show runBuildCommand --format llm
 ```
 
 Current limitations / notes:
@@ -137,14 +145,41 @@ Examples:
 pnpm arch context authentication
 pnpm arch context TypeScriptParser.parseRepository
 pnpm arch context method:packages/arch-parser-ts/src/services/type-script-parser.ts#TypeScriptParser.parseRepository
+pnpm arch context parser --json
+pnpm arch context parser --format llm
 ```
 
 Current limitations / notes:
 
-- output mode is human-readable only in current phase (JSON/LLM formatting is planned later)
 - graph expansion is bounded (depth 3) and deterministic
 - context budgets are enforced: max snippets `20`, max files `12`, max lines `1200`
 - query scoring is deterministic but intentionally lightweight in MVP
+
+## Output Modes
+
+Arch supports three output modes:
+
+- default human-readable terminal output
+- JSON output with `--json`
+- markdown output with `--format llm`
+
+Flag behavior:
+
+- `--json` takes precedence over `--format`
+- supported `--format` values are `human` and `llm`
+- `llm` format is currently available for `query`, `deps`, `show`, and `context`
+- `llm` format is not supported for `build` and `stats`
+
+JSON error shape:
+
+```json
+{
+	"error": {
+		"code": "<ERROR_CODE>",
+		"message": "<human-readable message>"
+	}
+}
+```
 
 ### Working directory behavior
 
