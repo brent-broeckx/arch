@@ -887,6 +887,19 @@ But the core should remain:
 - local
 - deterministic
 
+Phase 8 — Context Limits Configuration
+
+Features:
+
+- configurable context limits for `arch context`
+- CLI overrides for limits such as snippets, files, lines, depth, and paths
+- optional project-level defaults via local config
+- deterministic fallback to built-in defaults when no overrides are provided
+
+Commands:
+
+- `arch context <query> --max-snippets <n> --max-files <n> --max-lines <n>`
+
 ## Package Architecture
 
 ```
