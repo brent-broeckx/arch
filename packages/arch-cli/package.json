@@ -1,0 +1,30 @@
+{
+  "name": "@arch/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "arch": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -w -p tsconfig.json",
+    "lint": "echo \"No lint configured yet\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@arch/context": "workspace:*",
+    "@arch/core": "workspace:*",
+    "@arch/graph": "workspace:*",
+    "@arch/parser-ts": "workspace:*",
+    "commander": "^13.1.0"
+  }
+}

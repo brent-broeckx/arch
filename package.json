@@ -1,0 +1,21 @@
+{
+  "name": "arch",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "build": "tsx scripts/build.ts",
+    "dev": "pnpm -r --parallel --if-present dev",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "tsc -b --pretty"
+  },
+  "dependencies": {
+    "@arch/cli": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/arch-core" },
+    { "path": "./packages/arch-graph" },
+    { "path": "./packages/arch-parser-ts" },
+    { "path": "./packages/arch-context" },
+    { "path": "./packages/arch-cli" }
+  ]
+}

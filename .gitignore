@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Build outputs
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Ignore all dist folders inside packages
+packages/**/dist/
+
+# Framework/tool caches
+.next/
+.nuxt/
+.svelte-kit/
+.parcel-cache/
+.cache/
+.eslintcache
+
+# OS/Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Misc
+*.tgz
