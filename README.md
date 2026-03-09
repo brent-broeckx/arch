@@ -34,7 +34,7 @@ pnpm exec arch
 - `arch query` (implemented)
 - `arch deps` (implemented)
 - `arch show` (implemented)
-- `arch context` (scaffold)
+- `arch context` (implemented)
 
 ### `arch build`
 
@@ -127,9 +127,28 @@ Current limitations / notes:
 - ambiguous symbol input fails with a deterministic candidate list
 - snippet extraction depends on source file paths matching the built graph
 
+### `arch context`
+
+Compiles deterministic context bundles for a free-text query or symbol-like input.
+
+Examples:
+
+```bash
+pnpm arch context authentication
+pnpm arch context TypeScriptParser.parseRepository
+pnpm arch context method:packages/arch-parser-ts/src/services/type-script-parser.ts#TypeScriptParser.parseRepository
+```
+
+Current limitations / notes:
+
+- output mode is human-readable only in current phase (JSON/LLM formatting is planned later)
+- graph expansion is bounded (depth 3) and deterministic
+- context budgets are enforced: max snippets `20`, max files `12`, max lines `1200`
+- query scoring is deterministic but intentionally lightweight in MVP
+
 ### Working directory behavior
 
-Use a consistent working directory for `build`, `stats`, `query`, `deps`, and `show`.
+Use a consistent working directory for `build`, `stats`, `query`, `deps`, `show`, and `context`.
 
 - recommended: run from repository root with `pnpm arch ...`
 - using `pnpm --filter @arch/cli arch ...` runs from `packages/arch-cli` and uses that folder's `.arch` data

@@ -1,3 +1,4 @@
+import type { ContextBundle } from '@arch/context'
 import type { GraphMeta } from '@arch/core'
 import type { ArchNode, NodeType } from '@arch/core'
 import type { DepsResult, SymbolQueryResult } from '@arch/graph'
@@ -134,4 +135,35 @@ function printDepsSection(title: string, values: string[]): void {
     console.log(`  ${value}`)
   })
   console.log('')
+}
+
+export function printContextOutput(bundle: ContextBundle): void {
+  console.log(`Context: ${bundle.query}`)
+  console.log('')
+
+  printDepsSection('Entrypoints', bundle.entrypoints)
+
+  console.log('Flow')
+  if (bundle.paths.length === 0) {
+    console.log('  (none)')
+  } else {
+    bundle.paths.forEach((pathNodes) => {
+      console.log(`  ${pathNodes.join(' -> ')}`)
+    })
+  }
+  console.log('')
+
+  printDepsSection('Files', bundle.files)
+
+  console.log('Snippets')
+  if (bundle.snippets.length === 0) {
+    console.log('  (none)')
+    return
+  }
+
+  bundle.snippets.forEach((snippet) => {
+    console.log(
+      `  ${snippet.symbol} (${snippet.file}:${snippet.startLine}-${snippet.endLine})`,
+    )
+  })
 }

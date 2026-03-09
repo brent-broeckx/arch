@@ -1,8 +1,8 @@
 import { Command } from 'commander'
 import { runBuildCommand } from './commands/build'
+import { runContextCommand } from './commands/context'
 import { runDepsCommand } from './commands/deps'
 import { runQueryCommand } from './commands/query'
-import { runScaffoldCommand } from './commands/scaffold'
 import { runShowCommand } from './commands/show'
 import { runStatsCommand } from './commands/stats'
 import { printCliBanner } from './utils/output'
@@ -62,8 +62,8 @@ export function buildProgram(): Command {
     .command('context')
     .description('Compile context for a feature or symbol')
     .argument('[query]', 'Context query')
-    .action((query: string | undefined) => {
-      runScaffoldCommand('context', query)
+    .action(async (query: string | undefined) => {
+      await runContextCommand(query)
     })
 
   return program
