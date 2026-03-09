@@ -1,5 +1,6 @@
 import { Command } from 'commander'
 import { runBuildCommand } from './commands/build'
+import { runDepsCommand } from './commands/deps'
 import { runQueryCommand } from './commands/query'
 import { runScaffoldCommand } from './commands/scaffold'
 import { runShowCommand } from './commands/show'
@@ -45,8 +46,8 @@ export function buildProgram(): Command {
     .command('deps')
     .description('Show dependencies for a symbol')
     .argument('[symbol]', 'Symbol name')
-    .action((symbol: string | undefined) => {
-      runScaffoldCommand('deps', symbol)
+    .action(async (symbol: string | undefined) => {
+      await runDepsCommand(symbol)
     })
 
   program

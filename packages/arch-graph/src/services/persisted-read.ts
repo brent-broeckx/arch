@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
-import type { ArchNode } from '@arch/core'
+import type { ArchEdge, ArchNode } from '@arch/core'
 
 function parseJsonl<T>(content: string): T[] {
   return content
@@ -14,6 +14,12 @@ export async function readPersistedNodes(rootDir: string): Promise<ArchNode[]> {
   const nodesPath = path.join(rootDir, '.arch', 'graph', 'nodes.jsonl')
   const content = await readFile(nodesPath, 'utf-8')
   return parseJsonl<ArchNode>(content)
+}
+
+export async function readPersistedEdges(rootDir: string): Promise<ArchEdge[]> {
+  const edgesPath = path.join(rootDir, '.arch', 'graph', 'edges.jsonl')
+  const content = await readFile(edgesPath, 'utf-8')
+  return parseJsonl<ArchEdge>(content)
 }
 
 export async function readPersistedSymbolsIndex(

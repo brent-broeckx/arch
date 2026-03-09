@@ -4,6 +4,7 @@ import type { GraphData } from '@arch/core'
 import type { ParseRepositoryOptions } from '../models/parser-types'
 import { discoverSourceFiles } from '../utils/file-discovery'
 import { sortEdges, sortNodes } from '../utils/sort-utils'
+import { extractCallEdges } from './call-extractor'
 import { createParseState } from './parse-state'
 import { extractImportEdges } from './import-extractor'
 import { extractFileAndSymbolNodes } from './symbol-extractor'
@@ -30,7 +31,11 @@ export class TypeScriptParser {
 
     sourceFiles.forEach((sourceFile) => {
       extractFileAndSymbolNodes(sourceFile, state)
+    })
+
+    sourceFiles.forEach((sourceFile) => {
       extractImportEdges(sourceFile, state)
+      extractCallEdges(sourceFile, state)
     })
 
     return {

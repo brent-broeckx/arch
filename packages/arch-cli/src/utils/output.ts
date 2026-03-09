@@ -1,6 +1,6 @@
 import type { GraphMeta } from '@arch/core'
 import type { ArchNode, NodeType } from '@arch/core'
-import type { SymbolQueryResult } from '@arch/graph'
+import type { DepsResult, SymbolQueryResult } from '@arch/graph'
 
 export function printCliBanner(): void {
   console.log('Arch CLI')
@@ -110,4 +110,28 @@ export function printShowAmbiguousOutput(input: string, nodes: ArchNode[]): void
     .forEach((node) => {
       console.log(`  ${node.id}`)
     })
+}
+
+export function printDepsOutput(result: DepsResult): void {
+  console.log(`arch deps ${result.input}`)
+  console.log('')
+
+  printDepsSection('Imports', result.imports)
+  printDepsSection('Calls', result.calls)
+  printDepsSection('Callers', result.callers)
+}
+
+function printDepsSection(title: string, values: string[]): void {
+  console.log(title)
+
+  if (values.length === 0) {
+    console.log('  (none)')
+    console.log('')
+    return
+  }
+
+  values.forEach((value) => {
+    console.log(`  ${value}`)
+  })
+  console.log('')
 }

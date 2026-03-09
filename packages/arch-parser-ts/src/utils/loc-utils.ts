@@ -1,5 +1,6 @@
 import type { SourceLoc } from '@arch/core'
 import type {
+  CallExpression,
   ClassDeclaration,
   FunctionDeclaration,
   ImportDeclaration,
@@ -10,6 +11,7 @@ import type {
 } from 'ts-morph'
 
 type LocDeclaration =
+  | CallExpression
   | ClassDeclaration
   | MethodDeclaration
   | FunctionDeclaration

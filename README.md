@@ -24,7 +24,7 @@ It analyzes TypeScript and JavaScript repositories using deterministic static an
 ```bash
 pnpm install
 pnpm build
-pnpm --filter @arch/cli exec arch
+pnpm exec arch
 ```
 
 ## Commands
@@ -32,8 +32,106 @@ pnpm --filter @arch/cli exec arch
 - `arch build` (implemented)
 - `arch stats` (implemented)
 - `arch query` (implemented)
-- `arch deps`
+- `arch deps` (implemented)
 - `arch show` (implemented)
-- `arch context`
+- `arch context` (scaffold)
+
+### `arch build`
+
+Builds the architecture graph from source files and writes deterministic output under `.arch`.
+
+Examples:
+
+```bash
+pnpm arch build
+pnpm arch build .
+pnpm arch build packages/arch-cli
+```
+
+Current limitations / notes:
+
+- scans TypeScript/JavaScript files only in MVP
+- output reflects code state at build time; run `arch build` again after code changes
+- graph location depends on current working directory and `repoPath`
+
+### `arch stats`
+
+Reads `.arch/graph/graph-meta.json` and prints repository architecture summary counts.
+
+Examples:
+
+```bash
+pnpm arch stats
+pnpm arch stats .
+pnpm arch stats packages/arch-parser-ts
+```
+
+Current limitations / notes:
+
+- requires an existing build (`arch build`) for the same target directory
+- shows aggregate counts only (no per-file/per-symbol breakdown yet)
+
+### `arch query`
+
+Searches indexed symbols and prints deterministic grouped matches.
+
+Examples:
+
+```bash
+pnpm arch query TypeScriptParser
+pnpm arch query parse
+pnpm arch query buildProgram
+```
+
+Current limitations / notes:
+
+- matching is case-insensitive substring over symbol names
+- searches symbol index only (no semantic/fuzzy ranking)
+- requires `.arch` data from a prior build in the same working directory
+
+### `arch deps`
+
+Shows direct dependencies for a symbol: `Imports`, `Calls`, and reverse `Callers`.
+
+Examples:
+
+```bash
+pnpm arch deps runBuildCommand
+pnpm arch deps TypeScriptParser
+pnpm arch deps TypeScriptParser.parseRepository
+pnpm arch deps method:packages/arch-parser-ts/src/services/type-script-parser.ts#TypeScriptParser.parseRepository
+```
+
+Current limitations / notes:
+
+- direct depth-1 dependencies only (non-transitive)
+- class input aggregates method-level dependencies for that class
+- call detection is static and deterministic; dynamic/runtime-only dispatch patterns may not resolve
+- ambiguous symbol input fails with a deterministic candidate list
+
+### `arch show`
+
+Displays the exact source snippet for a resolved symbol using stored AST line ranges.
+
+Examples:
+
+```bash
+pnpm arch show runBuildCommand
+pnpm arch show TypeScriptParser.parseRepository
+pnpm arch show function:packages/arch-cli/src/commands/build.ts#runBuildCommand
+```
+
+Current limitations / notes:
+
+- shows exact node span (`startLine..endLine`) only; no extra context lines yet
+- ambiguous symbol input fails with a deterministic candidate list
+- snippet extraction depends on source file paths matching the built graph
+
+### Working directory behavior
+
+Use a consistent working directory for `build`, `stats`, `query`, `deps`, and `show`.
+
+- recommended: run from repository root with `pnpm arch ...`
+- using `pnpm --filter @arch/cli arch ...` runs from `packages/arch-cli` and uses that folder's `.arch` data
 
 For full product requirements, see `MVP.md`.
