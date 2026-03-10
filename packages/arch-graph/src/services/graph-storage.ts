@@ -13,11 +13,9 @@ export async function persistGraph(
 ): Promise<PersistGraphResult> {
   const graphDir = path.join(rootDir, '.arch', 'graph')
   const indexDir = path.join(rootDir, '.arch', 'index')
-  const contextsDir = path.join(rootDir, '.arch', 'contexts')
 
   await mkdir(graphDir, { recursive: true })
   await mkdir(indexDir, { recursive: true })
-  await mkdir(contextsDir, { recursive: true })
 
   const nodes = sortNodes(graphData.nodes)
   const edges = sortEdges(graphData.edges)
