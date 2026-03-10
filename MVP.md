@@ -862,7 +862,338 @@ Implementation order:
 6. add `--format llm` for `arch show`
 7. add tests for all formatter outputs
 
-Phase 6 — Programmatic Consumption
+
+Phase 6 — Architecture Knowledge Layer
+
+Goal:
+
+Introduce a structured local architecture knowledge system that allows developers to store and retrieve important codebase information such as:
+
+- architectural decisions
+- workarounds
+- caveats
+- migration notes
+- feature-specific documentation
+
+This knowledge complements the architecture graph and allows Arch to capture why things exist, not just how they are connected.
+
+The knowledge layer must remain:
+
+- local
+- structured
+- deterministic
+- optional for users
+
+It must not introduce AI requirements.
+
+Motivation:
+
+The architecture graph describes structural relationships in code:
+
+- which services call other services
+- which modules depend on each other
+- which routes trigger which flows
+
+However, the graph cannot answer questions like:
+
+- Why does this workaround exist?
+- Why was this architecture decision made?
+- Why must this module not be refactored?
+- Why does this feature use a specific implementation?
+
+Developers often know these answers but they are lost in:
+
+- Slack threads
+- GitHub issues
+- PR discussions
+- tribal knowledge
+
+The knowledge layer provides a structured local place to store that information.
+
+Example use cases:
+
+1. Workaround
+
+```bash
+arch knowledge add \
+  --type workaround \
+  --feature authentication \
+  --title "OIDC clock skew issue" \
+  --body "Allow 2 minute skew because some client machines had incorrect system time."
+```
+
+2. Architecture decision
+
+```bash
+arch knowledge add \
+  --type decision \
+  --feature payments \
+  --title "Use retry for payment gateway calls" \
+  --body "Gateway occasionally returns transient errors. Retry with exponential backoff."
+```
+
+3. Migration note
+
+```bash
+arch knowledge add \
+  --type migration \
+  --feature billing \
+  --title "Stripe API v1 deprecation" \
+  --body "All calls should migrate to Stripe v2 endpoints before Q4."
+```
+
+Commands:
+
+The knowledge system introduces a new command group:
+
+- `arch knowledge`
+
+Supported commands:
+
+- `arch knowledge add`
+- `arch knowledge list`
+- `arch knowledge show`
+- `arch knowledge search`
+
+Command details:
+
+`arch knowledge add`
+
+Example:
+
+```bash
+arch knowledge add \
+  --type workaround \
+  --feature authentication \
+  --title "OIDC clock skew issue" \
+  --body "Allow 2 minute skew because some client machines had incorrect system time."
+```
+
+Required fields:
+
+- `type`
+- `title`
+- `body`
+
+Optional fields:
+
+- `feature`
+- `tags`
+
+`arch knowledge list`
+
+Example output:
+
+```text
+Knowledge Entries
+
+authentication
+  oidc-clock-skew-workaround
+
+billing
+  stripe-v2-migration
+
+general
+  pnpm-workspace-decision
+```
+
+`arch knowledge show <id>`
+
+Example:
+
+```bash
+arch knowledge show oidc-clock-skew-workaround
+```
+
+Example output:
+
+```text
+Title: OIDC clock skew issue
+Type: workaround
+Feature: authentication
+
+Client machines sometimes had incorrect system time.
+Allow a 2 minute clock skew during token validation.
+```
+
+`arch knowledge search <query>`
+
+Example:
+
+```bash
+arch knowledge search "clock skew"
+```
+
+Example output:
+
+```text
+Matches
+
+oidc-clock-skew-workaround
+Feature: authentication
+Type: workaround
+```
+
+Knowledge storage:
+
+All knowledge must be stored locally under:
+
+- `.arch/knowledge/`
+
+Recommended structure:
+
+```text
+.arch/
+  knowledge/
+    index.json
+    entries/
+      authentication/
+        2026-03-10_oidc-clock-skew-workaround.md
+      billing/
+        2026-03-10_stripe-v2-migration.md
+      general/
+        2026-03-10_pnpm-workspace-decision.md
+```
+
+Knowledge entry format:
+
+Entries must be stored as Markdown files with metadata.
+
+Example:
+
+```markdown
+---
+id: oidc-clock-skew-workaround
+title: OIDC clock skew issue
+type: workaround
+feature: authentication
+tags:
+  - oidc
+  - auth
+createdAt: 2026-03-10
+---
+
+Client machines sometimes had incorrect system time which caused JWT tokens to appear issued in the future.
+
+Solution:
+Allow a 2 minute skew in validation.
+```
+
+Metadata fields:
+
+Each entry includes:
+
+| Field | Description |
+| --- | --- |
+| `id` | unique identifier |
+| `title` | short description |
+| `type` | knowledge type |
+| `feature` | optional feature grouping |
+| `tags` | optional tags |
+| `createdAt` | creation date |
+
+Supported knowledge types:
+
+The MVP should support the following types:
+
+- `decision`
+- `workaround`
+- `caveat`
+- `note`
+- `migration`
+
+These provide enough structure without overcomplicating the system.
+
+Knowledge index:
+
+Arch should maintain a small index file for fast lookups.
+
+Example:
+
+- `.arch/knowledge/index.json`
+
+Example structure:
+
+```json
+{
+  "entries": [
+    {
+      "id": "oidc-clock-skew-workaround",
+      "type": "workaround",
+      "feature": "authentication",
+      "file": "entries/authentication/2026-03-10_oidc-clock-skew-workaround.md"
+    }
+  ]
+}
+```
+
+Integration with Arch queries:
+
+In later phases the knowledge system may integrate with graph queries.
+
+Example:
+
+```bash
+arch context authentication --include-knowledge
+```
+
+Possible output:
+
+```text
+Authentication Flow
+
+AuthController.login
+ -> AuthService.login
+ -> JwtService.generateToken
+
+Knowledge Notes
+
+OIDC clock skew workaround
+Allow 2 minute skew during validation.
+```
+
+This allows context bundles to include human knowledge alongside architecture data.
+
+Design principles:
+
+The knowledge system must follow these rules.
+
+Structured data:
+
+Knowledge entries must always contain metadata fields.
+
+Free-form notes without structure must not be supported.
+
+Local storage:
+
+All knowledge must remain inside the repository under `.arch`.
+
+Arch must not rely on:
+
+- cloud services
+- remote APIs
+- external databases
+
+Deterministic behavior:
+
+Knowledge retrieval must rely on:
+
+- keyword search
+- tag filtering
+- feature filtering
+
+Semantic search or embeddings are not part of the MVP.
+
+Human-readable format:
+
+Knowledge must be stored in Markdown so developers can:
+
+- read entries directly
+- edit entries manually if needed
+- commit entries to Git
+
+
+Phase 7 — Programmatic Consumption
 
 Possible features:
 
@@ -873,7 +1204,7 @@ Possible features:
 
 This phase depends on the output contracts from Phase 5.
 
-Phase 7 — Optional AI Integrations
+Phase 8 — Optional AI Integrations
 
 Possible future features:
 
@@ -887,7 +1218,7 @@ But the core should remain:
 - local
 - deterministic
 
-Phase 8 — Context Limits Configuration
+Phase 9 — Context Limits Configuration
 
 Features:
 
