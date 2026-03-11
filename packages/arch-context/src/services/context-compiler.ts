@@ -46,6 +46,7 @@ const UNBOUNDED_CONTEXT_LIMITS: ContextLimits = {
 export class ContextCompiler {
   public async compile(rootDir: string, options: CompileContextOptions): Promise<ContextBundle> {
     const query = options.query.trim()
+    const limitsEnabled = options.limits ?? true
     const [nodes, edges, featureMapping] = await Promise.all([
       readPersistedNodes(rootDir),
       readPersistedEdges(rootDir),
@@ -57,14 +58,14 @@ export class ContextCompiler {
 
     let rankedNodeIds: string[]
     let resolution: ContextResolution
-    let limits = options.limits ? CONTEXT_LIMITS : UNBOUNDED_CONTEXT_LIMITS
+    let limits = limitsEnabled ? CONTEXT_LIMITS : UNBOUNDED_CONTEXT_LIMITS
     if (featureResolution) {
       resolution = {
         kind: 'feature',
         feature: featureResolution.feature,
       }
 
-      limits = options.limits ? FEATURE_CONTEXT_LIMITS : UNBOUNDED_CONTEXT_LIMITS
+      limits = limitsEnabled ? FEATURE_CONTEXT_LIMITS : UNBOUNDED_CONTEXT_LIMITS
 
       rankedNodeIds = rankFeatureNodes(featureResolution.matchedNodes, nodeMap)
     } else {

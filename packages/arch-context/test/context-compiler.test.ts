@@ -219,7 +219,7 @@ describe('context-compiler', () => {
     expect(result.files).toContain('packages/arch-context/src/services/context-compiler.ts')
   })
 
-  it('disables query-mode limits when limits is enabled', async () => {
+  it('disables query-mode limits when limits is false', async () => {
     const nodes: ArchNode[] = Array.from({ length: 9 }).map((_, index) => ({
       id: `function:src/q.ts#fn${index + 1}`,
       type: 'function' as const,
@@ -245,7 +245,7 @@ describe('context-compiler', () => {
 
     const compiler = new ContextCompiler()
     const limited = await compiler.compile('/repo', { query: 'fn' })
-    const unlimited = await compiler.compile('/repo', { query: 'fn', limits: true })
+    const unlimited = await compiler.compile('/repo', { query: 'fn', limits: false })
 
     expect(limited.entrypoints.length).toBe(5)
     expect(unlimited.entrypoints.length).toBe(9)
