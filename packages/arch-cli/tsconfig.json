@@ -11,6 +11,7 @@
     { "path": "../arch-core" },
     { "path": "../arch-parser-ts" },
     { "path": "../arch-graph" },
-    { "path": "../arch-context" }
+    { "path": "../arch-context" },
+    { "path": "../arch-mcp" }
   ]
 }

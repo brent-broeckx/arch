@@ -8,6 +8,7 @@
       "@archkit/graph",
       "@archkit/parser-ts",
       "@archkit/context",
+      "@archkit/mcp",
       "@archkit/cli"
     ]
   ],

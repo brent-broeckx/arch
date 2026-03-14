@@ -18,37 +18,42 @@ export function buildHeuristicCandidates(input: BuildNextActionsInput): Heuristi
     const bestTarget = toResolvableTarget(bestEntrypoint)
     const bestRankSignal = rankSignal(0)
 
-    candidates.push({
-      action: {
-        tool: 'arch_show',
-        args: { target: bestTarget },
-        reason: `Highest-ranked ${bestEntrypoint.kind} for the primary result set`,
-        confidence: scoreConfidence(bestEntrypoint, bestRankSignal, deterministicConfidence, 0.15),
-        expectedValue: 'Inspect implementation details of the strongest entrypoint',
-        sourceResultId: bestEntrypoint.id,
-      },
-      score: 0.78 + bestRankSignal * 0.1,
-    })
+    if (bestTarget) {
+      candidates.push({
+        action: {
+          tool: 'arch_show',
+          args: { target: bestTarget },
+          reason: `Highest-ranked ${bestEntrypoint.kind} for the primary result set`,
+          confidence: scoreConfidence(bestEntrypoint, bestRankSignal, deterministicConfidence, 0.15),
+          expectedValue: 'Inspect implementation details of the strongest entrypoint',
+          sourceResultId: bestEntrypoint.id,
+        },
+        score: 0.78 + bestRankSignal * 0.1,
+      })
+    }
   }
 
   const centralSymbol = findCentralSymbol(top)
   if (centralSymbol) {
-    candidates.push({
-      action: {
-        tool: 'arch_deps',
-        args: { target: toResolvableTarget(centralSymbol) },
-        reason: 'Most central symbol by graph connectivity among top results',
-        confidence: scoreConfidence(
-          centralSymbol,
-          rankSignal(top.findIndex((item) => item.id === centralSymbol.id)),
-          deterministicConfidence,
-          0.1,
-        ),
-        expectedValue: 'Map callers/callees to expand investigation quickly',
-        sourceResultId: centralSymbol.id,
-      },
-      score: 0.68 + clamp01(centralSymbol.scoreBreakdown.graphScore / 100) * 0.2,
-    })
+    const centralTarget = toResolvableTarget(centralSymbol)
+    if (centralTarget) {
+      candidates.push({
+        action: {
+          tool: 'arch_deps',
+          args: { target: centralTarget },
+          reason: 'Most central symbol by graph connectivity among top results',
+          confidence: scoreConfidence(
+            centralSymbol,
+            rankSignal(top.findIndex((item) => item.id === centralSymbol.id)),
+            deterministicConfidence,
+            0.1,
+          ),
+          expectedValue: 'Map callers/callees to expand investigation quickly',
+          sourceResultId: centralSymbol.id,
+        },
+        score: 0.68 + clamp01(centralSymbol.scoreBreakdown.graphScore / 100) * 0.2,
+      })
+    }
   }
 
   const clusterRepresentatives = findClusterRepresentatives(top)
@@ -61,20 +66,22 @@ export function buildHeuristicCandidates(input: BuildNextActionsInput): Heuristi
 
   clusterRepresentatives.slice(0, 3).forEach(({ item }, index) => {
     const target = toResolvableTarget(item)
-    candidates.push({
-      action: {
-        tool: 'arch_show',
-        args: { target },
-        reason:
-          index === 0
-            ? 'Representative entrypoint for the primary result cluster'
-            : 'Representative entrypoint for a secondary result cluster',
-        confidence: scoreConfidence(item, rankSignal(index), deterministicConfidence, 0.05),
-        expectedValue: 'Validate whether this cluster is the intended feature slice',
-        sourceResultId: item.id,
-      },
-      score: 0.5 - index * 0.04,
-    })
+    if (target) {
+      candidates.push({
+        action: {
+          tool: 'arch_show',
+          args: { target },
+          reason:
+            index === 0
+              ? 'Representative entrypoint for the primary result cluster'
+              : 'Representative entrypoint for a secondary result cluster',
+          confidence: scoreConfidence(item, rankSignal(index), deterministicConfidence, 0.05),
+          expectedValue: 'Validate whether this cluster is the intended feature slice',
+          sourceResultId: item.id,
+        },
+        score: 0.5 - index * 0.04,
+      })
+    }
   })
 
   const lowConfidence = deterministicConfidence < 0.55
@@ -111,16 +118,18 @@ export function buildHeuristicCandidates(input: BuildNextActionsInput): Heuristi
   return { candidates, ambiguities }
 }
 
-function toResolvableTarget(item: RetrievedItem): string {
-  if (item.kind === 'file') {
-    return item.path
+function toResolvableTarget(item: RetrievedItem): string | undefined {
+  const preferredNodeId = item.nodeIds.find((nodeId) => nodeId === item.id)
+  if (preferredNodeId) {
+    return preferredNodeId
   }
 
-  if (item.kind === 'symbol') {
-    return item.name
+  const firstNodeId = item.nodeIds[0]
+  if (firstNodeId) {
+    return firstNodeId
   }
 
-  return item.name || item.path
+  return undefined
 }
 
 function rankSignal(rank: number): number {

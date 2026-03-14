@@ -1,11 +1,11 @@
 {
-  "name": "@archkit/cli",
-  "version": "0.3.0",
+  "name": "@archkit/mcp",
+  "version": "0.1.0",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/brent-broeckx/archkit.git",
-    "directory": "packages/arch-cli"
+    "directory": "packages/arch-mcp"
   },
   "homepage": "https://github.com/brent-broeckx/archkit#readme",
   "bugs": {
@@ -16,9 +16,6 @@
   ],
   "publishConfig": {
     "access": "public"
-  },
-  "bin": {
-    "arch": "dist/index.js"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -39,8 +36,7 @@
     "@archkit/context": "workspace:*",
     "@archkit/core": "workspace:*",
     "@archkit/graph": "workspace:*",
-    "@archkit/mcp": "workspace:*",
-    "@archkit/parser-ts": "workspace:*",
-    "commander": "^13.1.0"
+    "@modelcontextprotocol/sdk": "^1.17.4",
+    "zod": "^4.3.6"
   }
 }

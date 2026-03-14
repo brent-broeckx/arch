@@ -426,6 +426,28 @@ arch knowledge search deterministic
 arch knowledge search architecture --format llm
 ```
 
+### arch mcp [repoPath]
+
+Start the Arch MCP server over stdio for IDE and agent integrations.
+
+Arguments and options:
+
+- `repoPath` optional repository path (default `.`)
+- `--json`
+- `--format <format>` (`human|llm`)
+
+Examples:
+
+```bash
+arch mcp
+arch mcp .
+arch mcp /path/to/repo
+```
+
+IDE setup guides are maintained in the `@archkit/mcp` package README:
+
+- GitHub: https://github.com/brent-broeckx/archkit/tree/main/packages/arch-mcp#readme
+
 ## Output modes
 
 Most commands support both output flags:

@@ -18,6 +18,7 @@ import {
   runKnowledgeShowCommand,
 } from './commands/knowledge'
 import { runInitCommand } from './commands/init'
+import { runMcpCommand } from './commands/mcp'
 import { runQueryCommand } from './commands/query'
 import { runShowCommand } from './commands/show'
 import { runStatsCommand } from './commands/stats'
@@ -103,6 +104,14 @@ export function buildProgram(): Command {
     .option('--format <format>', 'Output format (human|llm)', 'human')
     .action(async (symbol: string | undefined, outputOptions: OutputOptions) => {
       await runShowCommand(symbol, outputOptions)
+    })
+
+  program
+    .command('mcp')
+    .description('Start MCP server (stdio transport)')
+    .argument('[repoPath]', 'Repository path', '.')
+    .action(async (repoPath: string | undefined) => {
+      await runMcpCommand(repoPath)
     })
 
   program

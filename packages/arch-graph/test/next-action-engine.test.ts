@@ -45,7 +45,7 @@ describe('next-action-engine', () => {
 
     expect(output.nextActions[0]).toMatchObject({
       tool: 'arch_show',
-      args: { target: 'src/auth/AuthGuard.ts' },
+      args: { target: 'file:src/auth/AuthGuard.ts' },
       priority: 1,
     })
   })
@@ -82,7 +82,11 @@ describe('next-action-engine', () => {
       ],
     })
 
-    expect(output.nextActions.some((action) => action.tool === 'arch_deps' && action.args.target === 'RoleGuard')).toBe(true)
+    expect(
+      output.nextActions.some(
+        (action) => action.tool === 'arch_deps' && action.args.target === 'symbol:RoleGuard',
+      ),
+    ).toBe(true)
   })
 
   it('adds ambiguity and cluster representatives for multi-directory results', () => {
