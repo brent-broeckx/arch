@@ -44,7 +44,14 @@ Add this to your VS Code MCP configuration file (for example `mcp.json`):
 		"archkit-mcp": {
 			"type": "stdio",
 			"command": "pnpm",
-			"args": ["exec", "arch", "mcp"]
+			"args": [
+				"--dir",
+				"path/to/project",
+				"exec",
+				"arch",
+				"mcp",
+				"."
+			]
 		}
 	},
 	"inputs": []
@@ -59,7 +66,7 @@ If Arch is installed globally, you can use:
 		"archkit-mcp": {
 			"type": "stdio",
 			"command": "arch",
-			"args": ["mcp"]
+			"args": ["mcp", "path/to/project"]
 		}
 	},
 	"inputs": []
@@ -82,7 +89,14 @@ Use local project binary via pnpm:
 	"name": "archkit-mcp",
 	"type": "stdio",
 	"command": "pnpm",
-	"args": ["exec", "arch", "mcp"]
+	"args": [
+		"--dir",
+		"path/to/project",
+		"exec",
+		"arch",
+		"mcp",
+		"."
+	]
 }
 ```
 
@@ -93,7 +107,7 @@ Or, if globally installed:
 	"name": "archkit-mcp",
 	"type": "stdio",
 	"command": "arch",
-	"args": ["mcp"]
+	"args": ["mcp", "path/to/project"]
 }
 ```
 
