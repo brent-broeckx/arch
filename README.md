@@ -17,6 +17,7 @@ It analyzes TypeScript and JavaScript repositories using deterministic static an
 - `@archkit/parser-ts` — TypeScript parser and extraction scaffolding
 - `@archkit/graph` — graph storage and traversal scaffolding
 - `@archkit/context` — context compilation scaffolding
+- `@archkit/mcp` — MCP server adapter over core Arch services
 - `@archkit/cli` — `arch` command scaffolding
 
 ## Quick start
@@ -123,6 +124,7 @@ Testing strategy highlights:
 - `arch feature assign <feature> <pattern>` (implemented)
 - `arch feature unmapped` (implemented)
 - `arch knowledge add|list|show|search` (implemented)
+- `arch mcp` (implemented)
 
 ### `arch init`
 
@@ -283,6 +285,24 @@ pnpm arch context addNode --mode lexical
 pnpm arch context "explain parser state flow" --mode semantic
 pnpm arch context command --no-limits
 ```
+
+### `arch mcp`
+
+Starts a local MCP server using stdio transport and the current repository as context.
+
+Examples:
+
+```bash
+pnpm arch mcp
+pnpm arch mcp .
+pnpm arch mcp packages/arch-cli
+```
+
+Current behavior:
+
+- stdio transport only in this phase
+- uses core services directly (no CLI output parsing)
+- returns structured tool payloads for AI-native workflows
 
 Current limitations / notes:
 

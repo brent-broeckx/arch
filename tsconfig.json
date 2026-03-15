@@ -5,6 +5,7 @@
     { "path": "./packages/arch-graph" },
     { "path": "./packages/arch-parser-ts" },
     { "path": "./packages/arch-context" },
+    { "path": "./packages/arch-mcp" },
     { "path": "./packages/arch-cli" }
   ]
 }

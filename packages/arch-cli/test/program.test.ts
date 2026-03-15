@@ -19,6 +19,7 @@ const {
   mockRunKnowledgeList,
   mockRunKnowledgeShow,
   mockRunKnowledgeSearch,
+  mockRunMcp,
   mockBanner,
 } = vi.hoisted(() => ({
   mockRunBuild: vi.fn(),
@@ -38,6 +39,7 @@ const {
   mockRunKnowledgeList: vi.fn(),
   mockRunKnowledgeShow: vi.fn(),
   mockRunKnowledgeSearch: vi.fn(),
+  mockRunMcp: vi.fn(),
   mockBanner: vi.fn(),
 }))
 
@@ -62,6 +64,7 @@ vi.mock('../src/commands/knowledge', () => ({
   runKnowledgeShowCommand: mockRunKnowledgeShow,
   runKnowledgeSearchCommand: mockRunKnowledgeSearch,
 }))
+vi.mock('../src/commands/mcp', () => ({ runMcpCommand: mockRunMcp }))
 vi.mock('../src/utils/output', () => ({ printCliBanner: mockBanner }))
 
 describe('program', () => {
@@ -79,6 +82,7 @@ describe('program', () => {
     await program.parseAsync(['node', 'arch', 'query', 'Auth'])
     await program.parseAsync(['node', 'arch', 'deps', 'Auth.login'])
     await program.parseAsync(['node', 'arch', 'show', 'Auth.login'])
+    await program.parseAsync(['node', 'arch', 'mcp', '.'])
     await program.parseAsync(['node', 'arch', 'context', 'auth'])
     await program.parseAsync(['node', 'arch', 'context', 'auth', '--no-limits'])
     await program.parseAsync(['node', 'arch', 'dead-code'])
@@ -114,6 +118,7 @@ describe('program', () => {
     expect(mockRunQuery).toHaveBeenCalledWith('Auth', expect.any(Object))
     expect(mockRunDeps).toHaveBeenCalledWith('Auth.login', expect.any(Object))
     expect(mockRunShow).toHaveBeenCalledWith('Auth.login', expect.any(Object))
+    expect(mockRunMcp).toHaveBeenCalledWith('.')
     expect(mockRunContext).toHaveBeenCalledWith('auth', expect.any(Object))
     expect(mockRunContext).toHaveBeenCalledWith('auth', expect.objectContaining({ limits: true }))
     expect(mockRunDeadCode).toHaveBeenCalledWith(expect.any(Object))

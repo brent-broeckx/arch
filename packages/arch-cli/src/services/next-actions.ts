@@ -3,6 +3,7 @@ import type { DepsResult, NextAction } from '@archkit/graph'
 
 export function buildShowNextActions(input: string, node: ArchNode): NextAction[] {
   const actions: NextAction[] = []
+  const normalizedInput = input.trim()
 
   if (node.type !== 'file') {
     actions.push({
@@ -19,7 +20,7 @@ export function buildShowNextActions(input: string, node: ArchNode): NextAction[
   actions.push({
     tool: 'arch_context',
     priority: actions.length + 1,
-    args: { query: node.name || input },
+    args: { query: normalizedInput || node.id },
     reason: 'Broaden from the current symbol into related architecture context',
     confidence: 0.72,
     expectedValue: 'Identify nearby feature-level entrypoints',

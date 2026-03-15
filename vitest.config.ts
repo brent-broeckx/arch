@@ -10,6 +10,7 @@ export default defineConfig({
       '@archkit/graph': path.join(root, 'packages/arch-graph/src/index.ts'),
       '@archkit/parser-ts': path.join(root, 'packages/arch-parser-ts/src/index.ts'),
       '@archkit/context': path.join(root, 'packages/arch-context/src/index.ts'),
+      '@archkit/mcp': path.join(root, 'packages/arch-mcp/src/index.ts'),
       '@archkit/cli': path.join(root, 'packages/arch-cli/src/index.ts'),
     },
   },
