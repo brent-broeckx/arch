@@ -82,7 +82,7 @@ describe('program', () => {
     await program.parseAsync(['node', 'arch', 'query', 'Auth'])
     await program.parseAsync(['node', 'arch', 'deps', 'Auth.login'])
     await program.parseAsync(['node', 'arch', 'show', 'Auth.login'])
-    await program.parseAsync(['node', 'arch', 'mcp'])
+    await program.parseAsync(['node', 'arch', 'mcp', '.'])
     await program.parseAsync(['node', 'arch', 'context', 'auth'])
     await program.parseAsync(['node', 'arch', 'context', 'auth', '--no-limits'])
     await program.parseAsync(['node', 'arch', 'dead-code'])

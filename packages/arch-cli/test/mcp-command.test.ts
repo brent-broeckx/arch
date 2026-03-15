@@ -25,7 +25,6 @@ describe('executeMcpCommand', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    delete process.env.INIT_CWD
   })
 
   afterEach(async () => {
@@ -33,37 +32,41 @@ describe('executeMcpCommand', () => {
   })
 
   it('starts mcp server using resolved repo path', async () => {
-    await executeMcpCommand('.', '/repo')
-
-    expect(mockCreateMcpServer).toHaveBeenCalledWith({ rootDir: '/repo' })
-    expect(mockStart).toHaveBeenCalledTimes(1)
-  })
-
-  it('auto-detects workspace root when launched from package subdirectory', async () => {
     const rootDir = await mkdtemp(path.join(tmpdir(), 'arch-mcp-root-'))
     tempDirs.push(rootDir)
 
-    const packageDir = path.join(rootDir, 'packages', 'arch-cli')
-    await mkdir(packageDir, { recursive: true })
-    await writeFile(path.join(rootDir, 'pnpm-workspace.yaml'), 'packages:\n  - packages/*\n', 'utf-8')
+    await mkdir(path.join(rootDir, '.arch'), { recursive: true })
 
-    await executeMcpCommand('.', packageDir)
+    await executeMcpCommand('.', rootDir)
 
     expect(mockCreateMcpServer).toHaveBeenCalledWith({ rootDir })
+    expect(mockStart).toHaveBeenCalledTimes(1)
   })
 
-  it('prefers INIT_CWD when available', async () => {
+  it('throws when repo path does not exist', async () => {
+    const rootDir = await mkdtemp(path.join(tmpdir(), 'arch-mcp-root-'))
+    tempDirs.push(rootDir)
+
+    await expect(executeMcpCommand('./missing', rootDir)).rejects.toThrow(/Repository path not found/)
+  })
+
+  it('throws when repo path is empty', async () => {
+    const rootDir = await mkdtemp(path.join(tmpdir(), 'arch-mcp-root-'))
+    tempDirs.push(rootDir)
+
+    await expect(executeMcpCommand('  ', rootDir)).rejects.toThrow(/Repository path is required/)
+  })
+
+  it('warns when .arch directory is missing', async () => {
     const rootDir = await mkdtemp(path.join(tmpdir(), 'arch-mcp-initcwd-root-'))
     tempDirs.push(rootDir)
 
-    const packageDir = path.join(rootDir, 'packages', 'arch-cli')
-    await mkdir(packageDir, { recursive: true })
-    await writeFile(path.join(rootDir, 'pnpm-workspace.yaml'), 'packages:\n  - packages/*\n', 'utf-8')
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
-    process.env.INIT_CWD = rootDir
+    await writeFile(path.join(rootDir, 'package.json'), '{}', 'utf-8')
+    await executeMcpCommand('.', rootDir)
 
-    await executeMcpCommand('.', packageDir)
-
-    expect(mockCreateMcpServer).toHaveBeenCalledWith({ rootDir })
+    expect(warnSpy).toHaveBeenCalled()
+    warnSpy.mockRestore()
   })
 })
